@@ -16,7 +16,7 @@ secret_key = config['KEYS']['wcl_private_key']
 #URL and Authentication/Request
 wcl = OAuth1Session(api_key, client_secret=secret_key)
 url = 'https://www.warcraftlogs.com:443/v1/report/fights/NLKn6xgdWJ9b1FY8?api_key=' + api_key
-r = wcl.get(url)
-#print(r.json())
+responseJSON = wcl.get(url)
+print(responseJSON.json())
 
 #print(r.json()), r.text, r.encoding, r.headers['content-type'], r.status_code
