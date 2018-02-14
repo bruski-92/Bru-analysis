@@ -33,12 +33,12 @@ def initialRequest(api_key, secret_key):
             CharID = names['id']
             break
     if CharID:
-        continueAnalysis(api_key, secret_key, wcl, CharID, name, fightInformation[0][1], fightInformation[0][2], fightInformation[0][3], 0)
+        continueAnalysis(api_key, secret_key, wcl, CharID, name, fightInformation[0][1], fightInformation[0][2], fightInformation[0][3], 0, 0)
     else:
         print("No Character with that name found within the Logs, Try Again")
 
 #Character Found, Analysis of Logs Commences
-def continueAnalysis(api_key, secret_key, wcl, CharID, CharName, startTime, endTime, bossPercentage, fightNo):
+def continueAnalysis(api_key, secret_key, wcl, CharID, CharName, startTime, endTime, bossPercentage, fightNo, damage):
     print("Continuing Analysis...")
     url = 'https://www.warcraftlogs.com:443/v1/report/events/NLKn6xgdWJ9b1FY8?start=' + str(startTime) + '&end=' + str(endTime) + '&api_key=' + api_key
     responseJSON = wcl.get(url)
@@ -46,12 +46,16 @@ def continueAnalysis(api_key, secret_key, wcl, CharID, CharName, startTime, endT
     for data in json_data['events']:
         try:
             if CharID == data['sourceID']:
-                print("Type: %s, ID: %s" % (data['type'], data['sourceID']))
+                #print("Type: %s, ID: %s" % (data['type'], data['sourceID']))
+                if data['type'] == "damage" and not data['ability']['name'] == "Stagger":
+                    #print("Ability: %s, Damage: %s" % (data['ability']['name'], data['amount']))
+                    damage = damage + int(data['amount'])
         except KeyError:
             print("no Source Key - Skipped")
+    print("Total Damage: %d" % (damage))
     try:
         if json_data['nextPageTimestamp']:
-            continueAnalysis(api_key, secret_key, wcl, CharID, CharName, int(json_data['nextPageTimestamp']), endTime, bossPercentage, fightNo)
+            continueAnalysis(api_key, secret_key, wcl, CharID, CharName, int(json_data['nextPageTimestamp']), endTime, bossPercentage, fightNo, damage)
     except KeyError:
             print("End of Fight")
         
